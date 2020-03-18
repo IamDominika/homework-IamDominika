@@ -1,5 +1,5 @@
 from typing import List
-
+from datetime import datetime, timedelta
 import pandas as pd
 
 CONFIRMED_CASES_URL = f"https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data" \
@@ -29,8 +29,9 @@ def poland_cases_by_date(day: int, month: int, year: int = 2020) -> int:
     """
     
     # Your code goes here (remove pass)
-    pass
-
+    year2=year%100
+    cases = confirmed_cases.loc[confirmed_cases["Country/Region"]=="Poland"][f"{month}/{day}/{year2}"].values[0]
+    return cases
 
 def top5_countries_by_date(day: int, month: int, year: int = 2020) -> List[str]:
     """
@@ -49,8 +50,11 @@ def top5_countries_by_date(day: int, month: int, year: int = 2020) -> List[str]:
     """
 
     # Your code goes here (remove pass)
-    pass
-
+    date = str(month) + "/" + str(day) +"/"+str(year%100)
+    cs_sorted = confirmed_cases.groupby(["Country/Region"], as_index=False).sum()
+    List = cs_sorted[["Country/Region", date]].sort_values(by=date)["Country/Region"].tail(5).tolist()
+    List.reverse()
+    return List
 
 def no_new_cases_count(day: int, month: int, year: int = 2020) -> int:
     """
@@ -69,4 +73,10 @@ def no_new_cases_count(day: int, month: int, year: int = 2020) -> int:
     """
     
     # Your code goes here (remove pass)
-    pass
+    data_str = str(month) + "/" + str(day) + "/" + str(year%100)
+    data_object = datetime.strptime(data_str, '%m/%d/%y')
+    yesterday = data_object - timedelta(days=1)
+    yesterday_str = '{dt.month}/{dt.day}/{dt:%y}'.format(dt = yesterday)
+    cc=confirmed_cases
+    cc = cc.loc[(cc[data_str] != cc[yesterday_str]) & (cc[data_str] > 0)][["Country/Region", data_str, yesterday_str]]
+    return len(cc.index)
