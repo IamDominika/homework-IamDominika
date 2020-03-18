@@ -67,3 +67,4 @@ def more_cured_than_deaths_indices(date: datetime.date) -> List[int]:
     
     # Your code goes here
     pass
+ 
